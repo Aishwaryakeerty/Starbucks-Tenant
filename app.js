@@ -35,7 +35,7 @@ app.get('/order/:order_id', order.getOrder);
 app.put('/order/:order_id',order.updateOrder);
 app.delete('/order/:order_id',order.deleteOrder);
 app.get('/orders', order.getOrders);
-
+app.post('/order/:order_id/pay', order.pay);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

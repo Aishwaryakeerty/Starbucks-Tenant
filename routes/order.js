@@ -33,7 +33,6 @@ function getOrder(req,res){
 	var output={"status":"","message":""};
 
 	var order_id = req.param('order_id');
-	console.log(order_id);
 	if(order_id == ""|| order_id == null)
 	{
 		output.status = "error";
@@ -164,24 +163,62 @@ function deleteOrder(req,res){
 }
 
 //Get method to return open orders
+
 function getOrders(req,res){
-	var output = {"id": id, "location": req.param('location'),"items":req.param('items'),"links": [{"payment": "http://localhost:3000/order/"+id+"/pay", "order": "http://localhost:3000/order/"+id+""}],"status":"PLACED","message":"Order has been placed" };
 	mongo.connect(mongourl,function(){
 		console.log("Connected to mongo at:" +mongourl);
 		var col = mongo.collection('order');
-		col.find({},function(err,result){
-		if(result)
+		
+		col.findOne({},{"_id":0},function(error,result){
+			if(result)
 			{
-			res.status(204).send(output);
+				res.send(result);
 			}
-		else {
-			output = {};
-			output.status = "error";
-			output.message = "Server Error, Try Again Later.";
-			res.status(500).send(JSON.stringify(output));	
-		}
+			else 
+			{
+				res.status(500).send();
+			}
 		});
+	});
+}
+
+//Post method for payment
+function pay(req,res){
+	var order_id = req.param('order_id');
+	var output = {"status":"","message":""};
+	if(order_id == null)
+	{
+		output.status = "error";
+		output.message = "Order not found";
+		res.status(406).send(output);
+	}
+	mongo.connect(mongourl,function(){
+		console.log("Connected to mongo at:" +mongourl);
+		var col = mongo.collection('order');
+		col.findOne({"id": order_id},{"_id":0},function(error,result){
+			if(result)
+			{
+
+				if(result !== null && result.status!== "PLACED")
+				{
+					output.status = "error";
+					output.message = "Order Payment Rejected";
+					res.status(406).send(output);
+
+				}
+				else 
+					result.status = "PAID";
+				result.message = "Payment Accepted";
+				res.send(result);
+			}
+			else 
+			{
+				output.status = "error";
+				output.message = "Server Error, Try Again Later.";
+				res.status(500).send(output);
+			}
 		});
+	});
 }
 
 
@@ -190,3 +227,4 @@ exports.getOrder = getOrder;
 exports.updateOrder = updateOrder;
 exports.deleteOrder = deleteOrder;
 exports.getOrders = getOrders;
+exports.pay = pay;
