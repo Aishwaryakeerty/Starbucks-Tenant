@@ -168,16 +168,11 @@ function getOrders(req,res){
 	mongo.connect(mongourl,function(){
 		console.log("Connected to mongo at:" +mongourl);
 		var col = mongo.collection('order');
-		
-		col.findOne({},{"_id":0},function(error,result){
-			if(result)
-			{
-				res.send(result);
-			}
-			else 
-			{
-				res.status(500).send();
-			}
+
+		col.find({},{"_id":0}).toArray(function(error, documents) {
+			if (error) throw error;
+
+			res.send(documents);
 		});
 	});
 }
@@ -198,7 +193,7 @@ function pay(req,res){
 		col.findOne({"id": order_id},{"_id":0},function(error,result){
 			if(result)
 			{
-
+				console.log(result);
 				if(result !== null && result.status!== "PLACED")
 				{
 					output.status = "error";
@@ -207,9 +202,22 @@ function pay(req,res){
 
 				}
 				else 
-					result.status = "PAID";
-				result.message = "Payment Accepted";
-				res.send(result);
+				{
+					col.update({"id":order_id},{$set:{"status": "PAID", "message": "Payment Accepted"}},function(err,result1){
+						if(result1){
+							result.status = "PAID";
+							result.message = "Payment Accepted";
+							res.send(result);
+						}
+						else
+						{
+							output.status = "error";
+							output.message = "Server Error, Try Again Later.";
+							res.status(500).send(output);
+
+						}
+					});
+				}
 			}
 			else 
 			{
@@ -227,4 +235,4 @@ exports.getOrder = getOrder;
 exports.updateOrder = updateOrder;
 exports.deleteOrder = deleteOrder;
 exports.getOrders = getOrders;
-exports.pay = pay;
+exports.pay = pay;//
