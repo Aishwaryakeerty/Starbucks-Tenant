@@ -7,7 +7,8 @@ var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , order = require('./routes/order');
 
 var app = express();
 
@@ -29,6 +30,12 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+app.post('/order',order.newOrder);
+app.get('/order/:order_id', order.getOrder);
+app.put('/order/:order_id',order.updateOrder);
+app.delete('/order/:order_id',order.deleteOrder);
+app.get('/orders', order.getOrders);
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
