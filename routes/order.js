@@ -6,6 +6,12 @@ var mongourl = "mongodb://localhost:27017/starbucks-tenant";
 //Post method for creating new order
 function newOrder(req,res){
 	var id = uuidV1();
+	console.log("1");
+	console.log(JSON.parse(req.rawBody));
+	console.log(req.body);
+//	console.log(req.body.location.replace(/\s/g,""));
+	console.log(req.param('location'));
+
 	var output = {"id": id, "location": req.param('location'),"items":req.param('items'),"links": [{"payment": "http://localhost:3000/order/"+id+"/pay", "order": "http://localhost:3000/order/"+id+""}],"status":"PLACED","message":"Order has been placed" };
 	mongo.connect(mongourl,function()
 			{
