@@ -1,18 +1,14 @@
 
 var mongo = require('./mongo');
 var uuidV1 = require('uuid/v1');
-var mongourl = "mongodb://localhost:27017/starbucks-tenant";
+var mongourl = "mongodb://54.183.145.45:27017/starbucks-tenant";
 
 //Post method for creating new order
 function newOrder(req,res){
 	var id = uuidV1();
-	console.log("1");
-	console.log(JSON.parse(req.rawBody));
-	console.log(req.body);
-//	console.log(req.body.location.replace(/\s/g,""));
-	console.log(req.param('location'));
-
-	var output = {"id": id, "location": req.param('location'),"items":req.param('items'),"links": [{"payment": "http://localhost:3000/order/"+id+"/pay", "order": "http://localhost:3000/order/"+id+""}],"status":"PLACED","message":"Order has been placed" };
+	var myinput = JSON.parse(req.rawBody);
+	
+	var output = {"id": id, "location": myinput.location,"items":myinput.items,"links": [{"payment": "http://54.183.145.45:3000/order/"+id+"/pay", "order": "http://54.183.145.45:3000/order/"+id+""}],"status":"PLACED","message":"Order has been placed" };
 	mongo.connect(mongourl,function()
 			{
 		console.log("Connected to mongo at:" +mongourl);
@@ -36,9 +32,10 @@ function newOrder(req,res){
 //Get method to return the current state of order
 
 function getOrder(req,res){
-	var output={"status":"","message":""};
 
-	var order_id = req.param('order_id');
+	var myinput = JSON.parse(req.rawBody);
+	var output={"status":"","message":""};
+	var order_id = myinput.order_id;
 	if(order_id == ""|| order_id == null)
 	{
 		output.status = "error";
@@ -76,8 +73,10 @@ function getOrder(req,res){
 
 //Put method to update an order 
 function updateOrder(req,res){
-	var order_id = req.param('order_id');
-	var output = {"id": order_id, "location": req.param('location'),"items":req.param('items'),"links": [{"payment": "http://localhost:3000/order/"+order_id+"/pay", "order": "http://localhost:3000/order/"+order_id+""}],"status":"PLACED","message":"Order has been placed" };
+
+	var myinput = JSON.parse(req.rawBody);
+	var order_id = myinput.order_id;
+	var output = {"id": order_id, "location": myinput.location,"items":myinput.items,"links": [{"payment": "http://54.183.145.45:3000/order/"+order_id+"/pay", "order": "http://54.183.145.45:3000/order/"+order_id+""}],"status":"PLACED","message":"Order has been placed" };
 	if(order_id == ""|| order_id == null)
 	{
 		output = {};
@@ -91,7 +90,7 @@ function updateOrder(req,res){
 
 		console.log("Connected to mongo at:" +mongourl);
 		var col = mongo.collection('order');
-		col.update({"id":order_id},{$set:{"location": req.param('location'), "items": req.param('items')}},function(err,result){
+		col.update({"id":order_id},{$set:{"location": myinput.location, "items": myinput.items}},function(err,result){
 			if(result)
 			{
 				if(result == null)
@@ -120,7 +119,9 @@ function updateOrder(req,res){
 
 //Delete the order 
 function deleteOrder(req,res){
-	var order_id = req.param('order_id');
+
+	var myinput = JSON.parse(req.rawBody);
+	var order_id = myinput.order_id;
 	var output = {"status":"", "message": ""};
 
 	if(order_id == ""|| order_id == null)
@@ -185,7 +186,9 @@ function getOrders(req,res){
 
 //Post method for payment
 function pay(req,res){
-	var order_id = req.param('order_id');
+
+	var myinput = JSON.parse(req.rawBody);
+	var order_id = myinput.order_id;
 	var output = {"status":"","message":""};
 	if(order_id == null)
 	{
@@ -241,4 +244,4 @@ exports.getOrder = getOrder;
 exports.updateOrder = updateOrder;
 exports.deleteOrder = deleteOrder;
 exports.getOrders = getOrders;
-exports.pay = pay;//
+exports.pay = pay;
