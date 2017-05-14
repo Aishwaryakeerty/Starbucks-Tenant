@@ -121,6 +121,7 @@ function updateOrder(req,res){
 function deleteOrder(req,res){
 
 	var myinput = JSON.parse(req.rawBody);
+	console.log(myinput);
 	var order_id = myinput.order_id;
 	var output = {"status":"", "message": ""};
 
