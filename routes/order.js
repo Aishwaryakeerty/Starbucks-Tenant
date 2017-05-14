@@ -33,9 +33,8 @@ function newOrder(req,res){
 
 function getOrder(req,res){
 
-	var myinput = JSON.parse(req.rawBody);
 	var output={"status":"","message":""};
-	var order_id = myinput.order_id;
+	var order_id = req.param('order_id');
 	if(order_id == ""|| order_id == null)
 	{
 		output.status = "error";
@@ -75,7 +74,7 @@ function getOrder(req,res){
 function updateOrder(req,res){
 
 	var myinput = JSON.parse(req.rawBody);
-	var order_id = myinput.order_id;
+	var order_id = req.param('order_id');
 	var output = {"id": order_id, "location": myinput.location,"items":myinput.items,"links": [{"payment": "http://54.183.145.45:3000/order/"+order_id+"/pay", "order": "http://54.183.145.45:3000/order/"+order_id+""}],"status":"PLACED","message":"Order has been placed" };
 	if(order_id == ""|| order_id == null)
 	{
@@ -120,9 +119,9 @@ function updateOrder(req,res){
 //Delete the order 
 function deleteOrder(req,res){
 
-	var myinput = JSON.parse(req.rawBody);
-	console.log(myinput);
-	var order_id = myinput.order_id;
+	//var myinput = rawBody//JSON.parse(req.rawBody);
+	//console.log(myinput);
+	var order_id = req.param('order_id');
 	var output = {"status":"", "message": ""};
 
 	if(order_id == ""|| order_id == null)
